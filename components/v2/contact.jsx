@@ -1,18 +1,36 @@
 "use client";
 
-import { useForm, ValidationError } from "@formspree/react";
 import { useEffect, useState } from "react";
+import { useForm, ValidationError } from "@formspree/react";
 
 export default function ContactSection() {
-  const formId = process.env.NEXT_PUBLIC_FORMSPREE_FORM_ID || "";
-  const [state, handleSubmit] = useForm(formId);
+  const [formId, setFormId] = useState(null);
+  const [formState, setFormState] = useState(null);
+  const [handleSubmit, setHandleSubmit] = useState(null);
   const [showPopup, setShowPopup] = useState(false);
 
+  // 👇 Only runs in browser, never during prerender
   useEffect(() => {
-    if (state.succeeded) {
+    const id = process.env.NEXT_PUBLIC_FORMSPREE_FORM_ID;
+
+    if (id) {
+      const [state, submit] = useForm(id);
+      setFormId(id);
+      setFormState(state);
+      setHandleSubmit(() => submit);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (formState?.succeeded) {
       setShowPopup(true);
     }
-  }, [state.succeeded]);
+  }, [formState?.succeeded]);
+
+  // 👇 Prevents build-time crash
+  if (!formId || !formState || !handleSubmit) {
+    return null;
+  }
 
   return (
     <>
@@ -22,7 +40,6 @@ export default function ContactSection() {
         </h2>
 
         <div className="contact-container">
-          {/* FORM */}
           <div className="contact-form">
             <form onSubmit={handleSubmit}>
               <div className="form-group">
@@ -31,7 +48,7 @@ export default function ContactSection() {
                 <ValidationError
                   prefix="Name"
                   field="name"
-                  errors={state.errors}
+                  errors={formState.errors}
                 />
               </div>
 
@@ -41,7 +58,7 @@ export default function ContactSection() {
                 <ValidationError
                   prefix="Email"
                   field="email"
-                  errors={state.errors}
+                  errors={formState.errors}
                 />
               </div>
 
@@ -51,7 +68,7 @@ export default function ContactSection() {
                 <ValidationError
                   prefix="Subject"
                   field="subject"
-                  errors={state.errors}
+                  errors={formState.errors}
                 />
               </div>
 
@@ -61,93 +78,22 @@ export default function ContactSection() {
                 <ValidationError
                   prefix="Message"
                   field="message"
-                  errors={state.errors}
+                  errors={formState.errors}
                 />
               </div>
 
               <button
                 type="submit"
                 className="submit-btn"
-                disabled={state.submitting || !formId}
+                disabled={formState.submitting}
               >
-                {state.submitting ? "Sending..." : "Send Message"}
+                {formState.submitting ? "Sending..." : "Send Message"}
               </button>
             </form>
-          </div>
-
-          {/* CONTACT INFO */}
-          <div className="contact-info">
-            <h3>Connect With Us</h3>
-
-            <div className="info-item">
-              <img className="info-icon" src="/discord.svg" alt="Discord" />
-              <div className="info-details">
-                <h4>Discord</h4>
-                <a
-                  href="https://discord.com/users/760193927797669981"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="contact-link"
-                >
-                  Message on Discord
-                </a>
-              </div>
-            </div>
-
-            <div className="info-item">
-              <img className="info-icon" src="/mail.svg" alt="Email" />
-              <div className="info-details">
-                <h4>Email</h4>
-                <a
-                  href="mailto:studio.vyke@gmail.com"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="contact-link"
-                >
-                  studio.vyke@gmail.com
-                </a>
-              </div>
-            </div>
-
-            <div className="info-item">
-              <img className="info-icon" src="/phone.svg" alt="Phone" />
-              <div className="info-details">
-                <h4>Phone</h4>
-                <a
-                  href="tel:+918239981234"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="contact-link"
-                >
-                  +91 8239981234
-                </a>
-              </div>
-            </div>
-
-            <div className="info-item">
-              <img className="info-icon" src="/insta.svg" alt="Instagram" />
-              <div className="info-details">
-                <h4>Instagram</h4>
-                <a
-                  href="https://www.instagram.com/reii_aep"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="contact-link"
-                >
-                  @reii_aep
-                </a>
-              </div>
-            </div>
-
-            <p className="contact-note">
-              We usually respond within <strong>24 hours</strong>. Let’s build
-              something impactful together.
-            </p>
           </div>
         </div>
       </section>
 
-      {/* SUCCESS POPUP */}
       {showPopup && (
         <div className="popup-backdrop" onClick={() => setShowPopup(false)}>
           <div className="popup" onClick={(e) => e.stopPropagation()}>
