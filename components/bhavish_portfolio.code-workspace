@@ -1,0 +1,14 @@
+{
+  "folders": [
+	{
+		"path": ".."
+	},
+	{
+		"path": "../../technical-analysis"
+	},
+	{
+		"path": "../../odoo"
+	}
+],
+  "settings": {}
+}
