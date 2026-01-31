@@ -11,7 +11,6 @@ export default function Hero() {
   const [wordIndex, setWordIndex] = useState(0);
   const [text, setText] = useState("");
   const [isDeleting, setIsDeleting] = useState(false);
-
   useEffect(() => {
     const currentWord = WORDS[wordIndex];
     let timeout;
